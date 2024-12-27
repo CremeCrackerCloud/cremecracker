@@ -48,7 +48,10 @@ pub async fn github_callback(
             .as_deref()
             .unwrap_or("OAuth consent was denied");
         return Ok(HttpResponse::Found()
-            .append_header(("Location", format!("{}/login?error={}", config::get_frontend_url(), error_msg)))
+            .append_header((
+                "Location",
+                format!("{}/login?error={}", config::get_frontend_url(), error_msg),
+            ))
             .finish());
     }
 
@@ -74,7 +77,10 @@ pub async fn github_callback(
         Err(e) => {
             debug!("GitHub token exchange error: {:?}", e);
             return Ok(HttpResponse::Found()
-                .append_header(("Location", format!("{}/login?error={}", config::get_frontend_url(), e)))
+                .append_header((
+                    "Location",
+                    format!("{}/login?error={}", config::get_frontend_url(), e),
+                ))
                 .finish());
         }
     };
@@ -136,7 +142,10 @@ pub async fn github_callback(
 
     debug!("GitHub auth flow completed successfully");
     Ok(HttpResponse::Found()
-        .append_header(("Location", format!("{}/dashboard", config::get_frontend_url())))
+        .append_header((
+            "Location",
+            format!("{}/dashboard", config::get_frontend_url()),
+        ))
         .finish())
 }
 
@@ -167,7 +176,10 @@ pub async fn gitlab_callback(
             .as_deref()
             .unwrap_or("OAuth consent was denied");
         return Ok(HttpResponse::Found()
-            .append_header(("Location", format!("{}/login?error={}", config::get_frontend_url(), error_msg)))
+            .append_header((
+                "Location",
+                format!("{}/login?error={}", config::get_frontend_url(), error_msg),
+            ))
             .finish());
     }
 
@@ -193,7 +205,10 @@ pub async fn gitlab_callback(
         Err(e) => {
             debug!("GitLab token exchange error: {:?}", e);
             return Ok(HttpResponse::Found()
-                .append_header(("Location", format!("{}/login?error={}", config::get_frontend_url(), e)))
+                .append_header((
+                    "Location",
+                    format!("{}/login?error={}", config::get_frontend_url(), e),
+                ))
                 .finish());
         }
     };
@@ -254,7 +269,10 @@ pub async fn gitlab_callback(
 
     debug!("GitLab auth flow completed successfully");
     Ok(HttpResponse::Found()
-        .append_header(("Location", format!("{}/dashboard", config::get_frontend_url())))
+        .append_header((
+            "Location",
+            format!("{}/dashboard", config::get_frontend_url()),
+        ))
         .finish())
 }
 
@@ -285,7 +303,10 @@ pub async fn bitbucket_callback(
             .as_deref()
             .unwrap_or("OAuth consent was denied");
         return Ok(HttpResponse::Found()
-            .append_header(("Location", format!("{}/login?error={}", config::get_frontend_url(), error_msg)))
+            .append_header((
+                "Location",
+                format!("{}/login?error={}", config::get_frontend_url(), error_msg),
+            ))
             .finish());
     }
 
@@ -311,7 +332,10 @@ pub async fn bitbucket_callback(
         Err(e) => {
             debug!("Bitbucket token exchange error: {:?}", e);
             return Ok(HttpResponse::Found()
-                .append_header(("Location", format!("{}/login?error={}", config::get_frontend_url(), e)))
+                .append_header((
+                    "Location",
+                    format!("{}/login?error={}", config::get_frontend_url(), e),
+                ))
                 .finish());
         }
     };
@@ -372,7 +396,10 @@ pub async fn bitbucket_callback(
 
     debug!("Bitbucket auth flow completed successfully");
     Ok(HttpResponse::Found()
-        .append_header(("Location", format!("{}/dashboard", config::get_frontend_url())))
+        .append_header((
+            "Location",
+            format!("{}/dashboard", config::get_frontend_url()),
+        ))
         .finish())
 }
 

@@ -1,6 +1,6 @@
+use crate::api::UserApi;
 use leptos::*;
 use wasm_bindgen::JsValue;
-use crate::api::UserApi;
 
 #[component]
 pub fn Dashboard() -> impl IntoView {
@@ -9,9 +9,11 @@ pub fn Dashboard() -> impl IntoView {
         |_| async move {
             match UserApi::get_current_user().await {
                 Ok(user) => Ok(user),
-                Err(err) => Err(err.as_string().unwrap_or_else(|| "Unknown error".to_string()))
+                Err(err) => Err(err
+                    .as_string()
+                    .unwrap_or_else(|| "Unknown error".to_string())),
             }
-        }
+        },
     );
 
     view! {

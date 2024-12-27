@@ -5,9 +5,15 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/api")
             .route("/auth/github", web::get().to(handlers::github_auth))
-            .route("/auth/github/callback", web::get().to(handlers::github_callback))
+            .route(
+                "/auth/github/callback",
+                web::get().to(handlers::github_callback),
+            )
             .route("/auth/gitlab", web::get().to(handlers::gitlab_auth))
-            .route("/auth/gitlab/callback", web::get().to(handlers::gitlab_callback))
+            .route(
+                "/auth/gitlab/callback",
+                web::get().to(handlers::gitlab_callback),
+            )
             .route("/auth/bitbucket", web::get().to(handlers::bitbucket_auth))
             .route(
                 "/auth/bitbucket/callback",

@@ -12,8 +12,10 @@ pub fn OAuthCallback() -> impl IntoView {
                     let _ = window.location().set_href("/dashboard");
                 }
                 Ok(())
-            },
-            Err(err) => Err(err.as_string().unwrap_or_else(|| "Unknown error".to_string()))
+            }
+            Err(err) => Err(err
+                .as_string()
+                .unwrap_or_else(|| "Unknown error".to_string())),
         }
     });
 

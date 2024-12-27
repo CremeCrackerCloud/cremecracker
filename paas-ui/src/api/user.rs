@@ -30,10 +30,8 @@ impl UserApi {
         opts.set_mode(RequestMode::Cors);
         opts.set_credentials(web_sys::RequestCredentials::Include);
 
-        let request = Request::new_with_str_and_init(
-            &format!("{}/api/user/me", config.api_host),
-            &opts,
-        )?;
+        let request =
+            Request::new_with_str_and_init(&format!("{}/api/user/me", config.api_host), &opts)?;
         request.headers().set("Accept", "application/json")?;
 
         let resp_value = JsFuture::from(window.fetch_with_request(&request)).await?;
@@ -45,7 +43,9 @@ impl UserApi {
         } else {
             let json = JsFuture::from(resp.json()?).await?;
             let error: serde_json::Value = serde_wasm_bindgen::from_value(json)?;
-            Err(JsValue::from_str(&error["error"].as_str().unwrap_or("Unknown error")))
+            Err(JsValue::from_str(
+                &error["error"].as_str().unwrap_or("Unknown error"),
+            ))
         }
     }
 }

@@ -4,7 +4,7 @@ use leptos_router::*;
 
 use crate::components::nav::NavBar;
 use crate::config::ConfigProvider;
-use crate::pages::{Home, Login, OAuthCallback, Dashboard};
+use crate::pages::{Dashboard, Home, Login, OAuthCallback};
 
 #[component]
 pub fn App() -> impl IntoView {
