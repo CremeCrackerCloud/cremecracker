@@ -47,17 +47,17 @@ impl OAuthProvider {
     pub fn get_scopes(&self) -> Vec<Scope> {
         match self {
             OAuthProvider::GitHub => vec![
-                Scope::new("read:user".to_string()),  // Read user profile data
-                Scope::new("user:email".to_string()), // Access user email
-                Scope::new("repo".to_string()), // Full access to public and private repositories
+                Scope::new("read:user".to_string()),
+                Scope::new("user:email".to_string()),
+                Scope::new("repo".to_string()),
             ],
             OAuthProvider::GitLab => vec![
                 Scope::new("read_user".to_string()),
                 Scope::new("read_repository".to_string()),
             ],
             OAuthProvider::Bitbucket => vec![
-                Scope::new("account".to_string()), // Read user account information
-                Scope::new("repository".to_string()), // Read and write access to repositories
+                Scope::new("account".to_string()),
+                Scope::new("repository".to_string()),
             ],
         }
     }
@@ -90,18 +90,15 @@ pub fn bitbucket_oauth_client() -> BasicClient {
 fn create_oauth_client(
     provider: &OAuthProvider,
 ) -> Result<BasicClient, oauth2::ConfigurationError> {
-    // Determine environment variable prefixes
     let (client_id_var, redirect_path) = match provider {
         OAuthProvider::GitHub => ("GITHUB", "/api/auth/github/callback"),
         OAuthProvider::GitLab => ("GITLAB", "/api/auth/gitlab/callback"),
         OAuthProvider::Bitbucket => ("BITBUCKET", "/api/auth/bitbucket/callback"),
     };
 
-    // Construct environment variable names
     let client_id_env = format!("{}_CLIENT_ID", client_id_var);
     let client_secret_env = format!("{}_CLIENT_SECRET", client_id_var);
 
-    // Get base URL
     let base_url = get_base_url();
     let redirect_url = format!("{}{}", base_url, redirect_path);
 
@@ -110,7 +107,6 @@ fn create_oauth_client(
     debug!("Token URL: {}", provider.get_token_url());
     debug!("Redirect URL: {}", redirect_url);
 
-    // Create OAuth client
     let client = BasicClient::new(
         ClientId::new(
             env::var(&client_id_env)

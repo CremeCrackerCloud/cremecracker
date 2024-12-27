@@ -22,7 +22,6 @@ pub fn Dashboard() -> impl IntoView {
                 {move || user_resource.get().map(|result| match result {
                     Ok(user) => view! {
                         <div>
-                            // Header section
                             <div class="mb-8">
                                 <h1 class="text-3xl font-bold text-gray-900">
                                     "Welcome, " {user.username} "!"
@@ -32,9 +31,7 @@ pub fn Dashboard() -> impl IntoView {
                                 </p>
                             </div>
 
-                            // Cards grid
                             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                                // Applications Card
                                 <div class="bg-white overflow-hidden shadow rounded-lg divide-y divide-gray-200">
                                     <div class="px-6 py-5">
                                         <div class="flex items-center">
@@ -60,7 +57,6 @@ pub fn Dashboard() -> impl IntoView {
                                     </div>
                                 </div>
 
-                                // Deployments Card
                                 <div class="bg-white overflow-hidden shadow rounded-lg divide-y divide-gray-200">
                                     <div class="px-6 py-5">
                                         <div class="flex items-center">
@@ -86,7 +82,6 @@ pub fn Dashboard() -> impl IntoView {
                                     </div>
                                 </div>
 
-                                // Settings Card
                                 <div class="bg-white overflow-hidden shadow rounded-lg divide-y divide-gray-200">
                                     <div class="px-6 py-5">
                                         <div class="flex items-center">

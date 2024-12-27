@@ -40,7 +40,6 @@ pub async fn github_callback(
     session: Session,
     params: web::Query<OAuthCallback>,
 ) -> Result<HttpResponse, AppError> {
-    // Check for OAuth error response
     if let Some(error) = &params.error {
         debug!("GitHub OAuth error: {}", error);
         let error_msg = params
@@ -64,7 +63,6 @@ pub async fn github_callback(
     let client = config::github_oauth_client();
 
     debug!("Exchanging GitHub code for token...");
-    // Exchange the code for an access token
     let token = match client
         .exchange_code(AuthorizationCode::new(code.clone()))
         .request_async(oauth2::reqwest::async_http_client)
@@ -86,7 +84,6 @@ pub async fn github_callback(
     };
 
     debug!("Getting GitHub user info...");
-    // Get user info from GitHub
     let client = reqwest::Client::new();
     let user_data = client
         .get(OAuthProvider::GitHub.get_user_api_url())
@@ -109,7 +106,6 @@ pub async fn github_callback(
         })?;
 
     debug!("Creating or updating user in database...");
-    // Create or update user in database
     let user = models::User::find_or_create(
         pool.get_ref(),
         &OAuthProvider::GitHub,
@@ -127,7 +123,6 @@ pub async fn github_callback(
     .await?;
 
     debug!("Setting session user...");
-    // Create session with OAuth tokens
     auth::set_session_user(
         &session,
         SessionUser {
@@ -168,7 +163,6 @@ pub async fn gitlab_callback(
     session: Session,
     params: web::Query<OAuthCallback>,
 ) -> Result<HttpResponse, AppError> {
-    // Check for OAuth error response
     if let Some(error) = &params.error {
         debug!("GitLab OAuth error: {}", error);
         let error_msg = params
@@ -192,7 +186,6 @@ pub async fn gitlab_callback(
     let client = config::gitlab_oauth_client();
 
     debug!("Exchanging GitLab code for token...");
-    // Exchange the code for an access token
     let token = match client
         .exchange_code(AuthorizationCode::new(code.clone()))
         .request_async(oauth2::reqwest::async_http_client)
@@ -214,7 +207,6 @@ pub async fn gitlab_callback(
     };
 
     debug!("Getting GitLab user info...");
-    // Get user info from GitLab
     let client = reqwest::Client::new();
     let user_data = client
         .get(OAuthProvider::GitLab.get_user_api_url())
@@ -236,7 +228,6 @@ pub async fn gitlab_callback(
         })?;
 
     debug!("Creating or updating user in database...");
-    // Create or update user in database
     let user = models::User::find_or_create(
         pool.get_ref(),
         &OAuthProvider::GitLab,
@@ -254,7 +245,6 @@ pub async fn gitlab_callback(
     .await?;
 
     debug!("Setting session user...");
-    // Create session with OAuth tokens
     auth::set_session_user(
         &session,
         SessionUser {
@@ -295,7 +285,6 @@ pub async fn bitbucket_callback(
     session: Session,
     params: web::Query<OAuthCallback>,
 ) -> Result<HttpResponse, AppError> {
-    // Check for OAuth error response
     if let Some(error) = &params.error {
         debug!("Bitbucket OAuth error: {}", error);
         let error_msg = params
@@ -319,7 +308,6 @@ pub async fn bitbucket_callback(
     let client = config::bitbucket_oauth_client();
 
     debug!("Exchanging Bitbucket code for token...");
-    // Exchange the code for an access token
     let token = match client
         .exchange_code(AuthorizationCode::new(code.clone()))
         .request_async(oauth2::reqwest::async_http_client)
@@ -341,7 +329,6 @@ pub async fn bitbucket_callback(
     };
 
     debug!("Getting Bitbucket user info...");
-    // Get user info from Bitbucket
     let client = reqwest::Client::new();
     let user_data = client
         .get(OAuthProvider::Bitbucket.get_user_api_url())
@@ -363,7 +350,6 @@ pub async fn bitbucket_callback(
         })?;
 
     debug!("Creating or updating user in database...");
-    // Create or update user in database
     let user = models::User::find_or_create(
         pool.get_ref(),
         &OAuthProvider::Bitbucket,
@@ -381,7 +367,6 @@ pub async fn bitbucket_callback(
     .await?;
 
     debug!("Setting session user...");
-    // Create session with OAuth tokens
     auth::set_session_user(
         &session,
         SessionUser {

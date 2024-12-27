@@ -19,22 +19,18 @@ pub async fn run() -> std::io::Result<()> {
     dotenv().ok();
     env_logger::init();
 
-    // Initialize database connection pool
     let pool = db::create_pool()
         .await
         .expect("Failed to create database pool");
 
-    // Initialize database schema
     db::init_db(&pool)
         .await
         .expect("Failed to initialize database");
 
-    // Get host and port from environment variables
     let host = env::var("HOST").unwrap_or_else(|_| "127.0.0.1".to_string());
     let port = env::var("PORT").unwrap_or_else(|_| "3000".to_string());
     let bind_address = format!("{}:{}", host, port);
 
-    // Generate random key for signing the session cookie
     let secret_key = actix_web::cookie::Key::generate();
 
     println!("Starting server at http://{}", bind_address);
@@ -43,7 +39,7 @@ pub async fn run() -> std::io::Result<()> {
             .wrap(
                 SessionMiddleware::builder(CookieSessionStore::default(), secret_key.clone())
                     .session_lifecycle(PersistentSession::default().session_ttl(Duration::days(7)))
-                    .cookie_secure(false) // Set to true in production with HTTPS
+                    .cookie_secure(false)
                     .cookie_http_only(true)
                     .build(),
             )
@@ -69,7 +65,6 @@ pub async fn run() -> std::io::Result<()> {
     .await
 }
 
-// This allows the crate to be run directly if needed
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     run().await

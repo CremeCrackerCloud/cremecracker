@@ -7,7 +7,6 @@ pub struct Config {
 
 impl Config {
     pub fn load() -> Self {
-        // In development, use env vars from trunk
         let api_host = option_env!("API_HOST")
             .unwrap_or("http://127.0.0.1:3000")
             .to_string();

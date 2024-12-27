@@ -24,9 +24,7 @@ pub fn NavBar() -> impl IntoView {
         async move {
             match AuthApi::logout().await {
                 Ok(_) => {
-                    // Força o refresh do recurso do usuário
                     user_resource.refetch();
-                    // Navega para a página de login
                     window().location().set_href("/login").unwrap();
                     Ok(())
                 }
@@ -41,14 +39,12 @@ pub fn NavBar() -> impl IntoView {
         <nav class="bg-white shadow-lg">
             <div class="max-w-7xl mx-auto px-4">
                 <div class="flex justify-between h-16">
-                    // Logo section
                     <div class="flex items-center">
                         <A href="/" class="text-xl font-bold text-gray-800">
                             "CremeCracker PaaS"
                         </A>
                     </div>
 
-                    // User section
                     <div class="flex items-center space-x-4">
                         {move || user_resource.get().map(|result| match result {
                             Ok(user) => view! {

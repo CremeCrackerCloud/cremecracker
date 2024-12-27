@@ -80,10 +80,8 @@ async fn setup_test_db() -> SqlitePool {
 async fn test_github_auth_flow() {
     setup_test_env();
 
-    // Setup mock server for GitHub API
     let mock_server = MockServer::start().await;
 
-    // Override GitHub URLs to use mock server
     env::set_var(
         "GITHUB_AUTH_URL",
         format!("{}/login/oauth/authorize", mock_server.uri()),
@@ -94,7 +92,6 @@ async fn test_github_auth_flow() {
     );
     env::set_var("GITHUB_API_URL", format!("{}/user", mock_server.uri()));
 
-    // Mock GitHub token endpoint
     Mock::given(method("POST"))
         .and(path("/login/oauth/access_token"))
         .respond_with(ResponseTemplate::new(200).set_body_json(json!({
@@ -105,7 +102,6 @@ async fn test_github_auth_flow() {
         .mount(&mock_server)
         .await;
 
-    // Mock GitHub user endpoint
     Mock::given(method("GET"))
         .and(path("/user"))
         .respond_with(ResponseTemplate::new(200).set_body_json(json!({
@@ -117,11 +113,9 @@ async fn test_github_auth_flow() {
         .mount(&mock_server)
         .await;
 
-    // Setup test database
     let pool = setup_test_db().await;
     let app = setup_test_app(pool.clone()).await;
 
-    // Test GitHub auth initiation
     let req = test::TestRequest::get()
         .uri("/api/auth/github")
         .to_request();
@@ -134,7 +128,6 @@ async fn test_github_auth_flow() {
         .unwrap()
         .contains("/login/oauth/authorize"));
 
-    // Test GitHub callback
     let req = test::TestRequest::get()
         .uri("/api/auth/github/callback?code=test_code&state=test_state")
         .to_request();
@@ -144,7 +137,6 @@ async fn test_github_auth_flow() {
     let location = resp.headers().get("Location").unwrap().to_str().unwrap();
     assert!(location.contains(&format!("{}/dashboard", config::get_frontend_url())));
 
-    // Verify user was created in database
     let user = sqlx::query_as::<_, models::User>("SELECT * FROM users WHERE username = ?")
         .bind("test_user")
         .fetch_one(&pool)
@@ -159,10 +151,8 @@ async fn test_github_auth_flow() {
 async fn test_gitlab_auth_flow() {
     setup_test_env();
 
-    // Setup mock server for GitLab API
     let mock_server = MockServer::start().await;
 
-    // Override GitLab URLs to use mock server
     env::set_var(
         "GITLAB_AUTH_URL",
         format!("{}/oauth/authorize", mock_server.uri()),
@@ -176,7 +166,6 @@ async fn test_gitlab_auth_flow() {
         format!("{}/api/v4/user", mock_server.uri()),
     );
 
-    // Mock GitLab token endpoint
     Mock::given(method("POST"))
         .and(path("/oauth/token"))
         .respond_with(ResponseTemplate::new(200).set_body_json(json!({
@@ -187,7 +176,6 @@ async fn test_gitlab_auth_flow() {
         .mount(&mock_server)
         .await;
 
-    // Mock GitLab user endpoint
     Mock::given(method("GET"))
         .and(path("/api/v4/user"))
         .respond_with(ResponseTemplate::new(200).set_body_json(json!({
@@ -199,11 +187,9 @@ async fn test_gitlab_auth_flow() {
         .mount(&mock_server)
         .await;
 
-    // Setup test database
     let pool = setup_test_db().await;
     let app = setup_test_app(pool.clone()).await;
 
-    // Test GitLab auth initiation
     let req = test::TestRequest::get()
         .uri("/api/auth/gitlab")
         .to_request();
@@ -216,7 +202,6 @@ async fn test_gitlab_auth_flow() {
         .unwrap()
         .contains("/oauth/authorize"));
 
-    // Test GitLab callback
     let req = test::TestRequest::get()
         .uri("/api/auth/gitlab/callback?code=test_code&state=test_state")
         .to_request();
@@ -226,7 +211,6 @@ async fn test_gitlab_auth_flow() {
     let location = resp.headers().get("Location").unwrap().to_str().unwrap();
     assert!(location.contains(&format!("{}/dashboard", config::get_frontend_url())));
 
-    // Verify user was created in database
     let user = sqlx::query_as::<_, models::User>("SELECT * FROM users WHERE username = ?")
         .bind("test_user")
         .fetch_one(&pool)
@@ -241,10 +225,8 @@ async fn test_gitlab_auth_flow() {
 async fn test_bitbucket_auth_flow() {
     setup_test_env();
 
-    // Setup mock server for Bitbucket API
     let mock_server = MockServer::start().await;
 
-    // Override Bitbucket URLs to use mock server
     env::set_var(
         "BITBUCKET_AUTH_URL",
         format!("{}/site/oauth2/authorize", mock_server.uri()),
@@ -253,9 +235,11 @@ async fn test_bitbucket_auth_flow() {
         "BITBUCKET_TOKEN_URL",
         format!("{}/site/oauth2/access_token", mock_server.uri()),
     );
-    env::set_var("BITBUCKET_API_URL", format!("{}/2.0/user", mock_server.uri()));
+    env::set_var(
+        "BITBUCKET_API_URL",
+        format!("{}/2.0/user", mock_server.uri()),
+    );
 
-    // Mock Bitbucket token endpoint
     Mock::given(method("POST"))
         .and(path("/site/oauth2/access_token"))
         .respond_with(ResponseTemplate::new(200).set_body_json(json!({
@@ -266,7 +250,6 @@ async fn test_bitbucket_auth_flow() {
         .mount(&mock_server)
         .await;
 
-    // Mock Bitbucket user endpoint
     Mock::given(method("GET"))
         .and(path("/2.0/user"))
         .respond_with(ResponseTemplate::new(200).set_body_json(json!({
@@ -282,11 +265,9 @@ async fn test_bitbucket_auth_flow() {
         .mount(&mock_server)
         .await;
 
-    // Setup test database
     let pool = setup_test_db().await;
     let app = setup_test_app(pool.clone()).await;
 
-    // Test Bitbucket auth initiation
     let req = test::TestRequest::get()
         .uri("/api/auth/bitbucket")
         .to_request();
@@ -299,7 +280,6 @@ async fn test_bitbucket_auth_flow() {
         .unwrap()
         .contains("/site/oauth2/authorize"));
 
-    // Test Bitbucket callback
     let req = test::TestRequest::get()
         .uri("/api/auth/bitbucket/callback?code=test_code&state=test_state")
         .to_request();
@@ -309,7 +289,6 @@ async fn test_bitbucket_auth_flow() {
     let location = resp.headers().get("Location").unwrap().to_str().unwrap();
     assert!(location.contains(&format!("{}/dashboard", config::get_frontend_url())));
 
-    // Verify user was created in database
     let user = sqlx::query_as::<_, models::User>("SELECT * FROM users WHERE username = ?")
         .bind("test_user")
         .fetch_one(&pool)
@@ -324,11 +303,9 @@ async fn test_bitbucket_auth_flow() {
 async fn test_logout() {
     setup_test_env();
 
-    // Setup test database
     let pool = setup_test_db().await;
     let app = setup_test_app(pool.clone()).await;
 
-    // Test logout endpoint
     let req = test::TestRequest::post()
         .uri("/api/auth/logout")
         .to_request();
@@ -340,11 +317,9 @@ async fn test_logout() {
 async fn test_github_auth_denied() {
     setup_test_env();
 
-    // Setup test database
     let pool = setup_test_db().await;
     let app = setup_test_app(pool.clone()).await;
 
-    // Test GitHub callback with denied consent
     let req = test::TestRequest::get()
         .uri("/api/auth/github/callback?error=access_denied&error_description=The+user+has+denied+access")
         .to_request();
@@ -360,11 +335,9 @@ async fn test_github_auth_denied() {
 async fn test_gitlab_auth_denied() {
     setup_test_env();
 
-    // Setup test database
     let pool = setup_test_db().await;
     let app = setup_test_app(pool.clone()).await;
 
-    // Test GitLab callback with denied consent
     let req = test::TestRequest::get()
         .uri("/api/auth/gitlab/callback?error=access_denied&error_description=The+user+has+denied+access")
         .to_request();
@@ -380,11 +353,9 @@ async fn test_gitlab_auth_denied() {
 async fn test_bitbucket_auth_denied() {
     setup_test_env();
 
-    // Setup test database
     let pool = setup_test_db().await;
     let app = setup_test_app(pool.clone()).await;
 
-    // Test Bitbucket callback with denied consent
     let req = test::TestRequest::get()
         .uri("/api/auth/bitbucket/callback?error=access_denied&error_description=The+user+has+denied+access")
         .to_request();

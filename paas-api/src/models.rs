@@ -5,14 +5,14 @@ use sqlx::{FromRow, SqlitePool};
 #[derive(Debug, Serialize, Deserialize, FromRow, Clone)]
 pub struct User {
     pub id: i64,
-    pub provider: String, // Stores the OAuth provider (GitHub, GitLab, Bitbucket)
-    pub provider_user_id: String, // User's ID from the OAuth provider
+    pub provider: String,
+    pub provider_user_id: String,
     pub username: String,
     pub email: Option<String>,
     pub avatar_url: Option<String>,
     pub access_token: Option<String>,
     pub refresh_token: Option<String>,
-    pub created_at: String, // Store as string since SQLite doesn't have a native DateTime type
+    pub created_at: String,
 }
 
 impl User {
@@ -24,7 +24,6 @@ impl User {
         email: Option<&str>,
         avatar_url: Option<&str>,
     ) -> Result<Self, sqlx::Error> {
-        // First, try to find the user by provider and provider user ID
         let user = sqlx::query_as::<_, User>(
             "SELECT * FROM users WHERE provider = ? AND provider_user_id = ?",
         )
@@ -33,12 +32,10 @@ impl User {
         .fetch_optional(pool)
         .await?;
 
-        // If user exists, return the existing user
         if let Some(user) = user {
             return Ok(user);
         }
 
-        // If not, create a new user
         let user = sqlx::query_as::<_, User>(
             "INSERT INTO users (provider, provider_user_id, username, email, avatar_url, created_at) 
              VALUES (?, ?, ?, ?, ?, datetime('now')) 
@@ -80,7 +77,6 @@ impl User {
     }
 }
 
-// Implement ToString for OAuthProvider to store in database
 impl ToString for OAuthProvider {
     fn to_string(&self) -> String {
         match self {
@@ -95,7 +91,7 @@ impl ToString for OAuthProvider {
 pub struct GitProvider {
     pub id: i64,
     pub user_id: i64,
-    pub provider_type: String, // "github", "gitlab", "bitbucket"
+    pub provider_type: String,
     pub access_token: String,
     pub refresh_token: Option<String>,
     pub expires_at: Option<String>,

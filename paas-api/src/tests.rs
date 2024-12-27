@@ -8,7 +8,6 @@ mod tests {
     fn setup_test_env() {
         dotenv::from_path("tests.env").expect("Failed to load tests.env file");
 
-        // Set redirect URLs using test environment HOST and PORT
         let host = env::var("HOST").expect("HOST must be set in tests.env");
         let port = env::var("PORT").expect("PORT must be set in tests.env");
         let base_url = format!("http://{}:{}", host, port);

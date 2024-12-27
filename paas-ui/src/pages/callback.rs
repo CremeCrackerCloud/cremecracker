@@ -7,7 +7,6 @@ pub fn OAuthCallback() -> impl IntoView {
     let handle_callback = create_action(|_: &()| async move {
         match AuthApi::handle_oauth_callback().await {
             Ok(_) => {
-                // Redirect to dashboard
                 if let Some(window) = web_sys::window() {
                     let _ = window.location().set_href("/dashboard");
                 }
@@ -19,7 +18,6 @@ pub fn OAuthCallback() -> impl IntoView {
         }
     });
 
-    // Automatically trigger the callback handling
     handle_callback.dispatch(());
 
     view! {

@@ -12,7 +12,6 @@ mod memory_db_tests {
         let pool = db::create_pool().await;
         assert!(pool.is_ok());
 
-        // Validar que podemos executar queries
         let pool = pool.unwrap();
         let result = sqlx::query("SELECT 1").execute(&pool).await;
         assert!(result.is_ok());
@@ -24,7 +23,6 @@ mod memory_db_tests {
         let result = db::init_db(&pool).await;
         assert!(result.is_ok());
 
-        // Validar que as migrations foram aplicadas
         let result = sqlx::query("SELECT name FROM sqlite_master WHERE type='table'")
             .execute(&pool)
             .await;
@@ -44,7 +42,6 @@ mod file_db_tests {
         let pool = db::create_pool().await;
         assert!(pool.is_ok());
 
-        // Validar que podemos executar queries
         let pool = pool.unwrap();
         let result = sqlx::query("SELECT 1").execute(&pool).await;
         assert!(result.is_ok());
@@ -58,7 +55,6 @@ mod file_db_tests {
         let result = db::init_db(&pool).await;
         assert!(result.is_ok());
 
-        // Validar que as migrations foram aplicadas
         let result = sqlx::query("SELECT name FROM sqlite_master WHERE type='table'")
             .execute(&pool)
             .await;
@@ -76,12 +72,11 @@ mod file_db_tests {
     async fn test_create_pool_readonly_dir() {
         let temp_dir = tempfile::tempdir().unwrap();
         let db_path = temp_dir.path().join("db.sqlite");
-        
-        // Tentar criar um banco em um diretório somente leitura
+
         std::fs::create_dir_all(temp_dir.path()).unwrap();
         let mode = std::fs::Permissions::from_mode(0o444); // somente leitura
         std::fs::set_permissions(temp_dir.path(), mode).unwrap();
-        
+
         env::set_var("DATABASE_URL", format!("sqlite:{}", db_path.display()));
         let pool = db::create_pool().await;
         assert!(pool.is_err());
@@ -93,17 +88,14 @@ mod error_tests {
 
     #[sqlx::test]
     async fn test_create_pool_invalid_url() {
-        // Testar URL de outro banco de dados
         env::set_var("DATABASE_URL", "postgres://localhost:5432/db");
         let pool = db::create_pool().await;
         assert!(pool.is_err());
 
-        // Testar URL malformada
         env::set_var("DATABASE_URL", "not-a-url");
         let pool = db::create_pool().await;
         assert!(pool.is_err());
 
-        // Testar URL vazia
         env::set_var("DATABASE_URL", "");
         let pool = db::create_pool().await;
         assert!(pool.is_err());
