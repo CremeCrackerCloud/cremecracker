@@ -1,5 +1,5 @@
-use leptos::*;
 use crate::api::auth::AuthApi;
+use leptos::*;
 
 #[component]
 pub fn OAuthCallback() -> impl IntoView {

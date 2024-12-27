@@ -8,17 +8,23 @@ use crate::api::auth::AuthApi;
 pub fn Login() -> impl IntoView {
     let params = use_query_map();
     let error = move || params.with(|p| p.get("error").cloned());
-    
+
     let github_auth = create_action(|_: &()| async move {
-        AuthApi::github_auth().await.map_err(|e| e.as_string().unwrap_or_else(|| "Unknown error".to_string()))
+        AuthApi::github_auth()
+            .await
+            .map_err(|e| e.as_string().unwrap_or_else(|| "Unknown error".to_string()))
     });
 
     let gitlab_auth = create_action(|_: &()| async move {
-        AuthApi::gitlab_auth().await.map_err(|e| e.as_string().unwrap_or_else(|| "Unknown error".to_string()))
+        AuthApi::gitlab_auth()
+            .await
+            .map_err(|e| e.as_string().unwrap_or_else(|| "Unknown error".to_string()))
     });
 
     let bitbucket_auth = create_action(|_: &()| async move {
-        AuthApi::bitbucket_auth().await.map_err(|e| e.as_string().unwrap_or_else(|| "Unknown error".to_string()))
+        AuthApi::bitbucket_auth()
+            .await
+            .map_err(|e| e.as_string().unwrap_or_else(|| "Unknown error".to_string()))
     });
 
     let on_github_click = move |e: MouseEvent| {

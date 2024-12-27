@@ -7,15 +7,24 @@ mod tests {
 
     fn setup_test_env() {
         dotenv::from_path("tests.env").expect("Failed to load tests.env file");
-        
+
         // Set redirect URLs using test environment HOST and PORT
         let host = env::var("HOST").expect("HOST must be set in tests.env");
         let port = env::var("PORT").expect("PORT must be set in tests.env");
         let base_url = format!("http://{}:{}", host, port);
 
-        env::set_var("GITHUB_REDIRECT_URL", format!("{}/api/auth/github/callback", base_url));
-        env::set_var("GITLAB_REDIRECT_URL", format!("{}/api/auth/gitlab/callback", base_url));
-        env::set_var("BITBUCKET_REDIRECT_URL", format!("{}/api/auth/bitbucket/callback", base_url));
+        env::set_var(
+            "GITHUB_REDIRECT_URL",
+            format!("{}/api/auth/github/callback", base_url),
+        );
+        env::set_var(
+            "GITLAB_REDIRECT_URL",
+            format!("{}/api/auth/gitlab/callback", base_url),
+        );
+        env::set_var(
+            "BITBUCKET_REDIRECT_URL",
+            format!("{}/api/auth/bitbucket/callback", base_url),
+        );
     }
 
     async fn setup_test_db() -> SqlitePool {

@@ -38,25 +38,25 @@ pub fn set_session_user(session: &Session, user: SessionUser) -> Result<(), AppE
     session.insert("username", user.username)?;
     session.insert("provider", user.provider)?;
     session.insert(ACCESS_TOKEN_KEY, user.access_token)?;
-    
+
     if let Some(email) = user.email {
         session.insert("email", email)?;
     }
     if let Some(refresh_token) = user.refresh_token {
         session.insert(REFRESH_TOKEN_KEY, refresh_token)?;
     }
-    
+
     Ok(())
 }
 
 #[allow(dead_code)]
 pub async fn validate_auth(req: ServiceRequest) -> Result<ServiceRequest, Error> {
     let session = req.get_session();
-    
+
     if session.get::<i64>(USER_ID_KEY)?.is_none() {
         return Err(AppError::AuthError("Unauthorized".to_string()).into());
     }
-    
+
     Ok(req)
 }
 

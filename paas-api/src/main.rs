@@ -8,7 +8,7 @@ mod routes;
 mod tests;
 
 use actix_cors::Cors;
-use actix_session::{storage::CookieSessionStore, SessionMiddleware, config::PersistentSession};
+use actix_session::{config::PersistentSession, storage::CookieSessionStore, SessionMiddleware};
 use actix_web::{http::header, middleware::Logger, web, App, HttpServer};
 use dotenv::dotenv;
 use env_logger;
@@ -42,10 +42,7 @@ pub async fn run() -> std::io::Result<()> {
         App::new()
             .wrap(
                 SessionMiddleware::builder(CookieSessionStore::default(), secret_key.clone())
-                    .session_lifecycle(
-                        PersistentSession::default()
-                            .session_ttl(Duration::days(7))
-                    )
+                    .session_lifecycle(PersistentSession::default().session_ttl(Duration::days(7)))
                     .cookie_secure(false) // Set to true in production with HTTPS
                     .cookie_http_only(true)
                     .build(),

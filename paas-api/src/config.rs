@@ -1,7 +1,7 @@
-use oauth2::{basic::BasicClient, AuthUrl, ClientId, ClientSecret, RedirectUrl, TokenUrl, Scope};
+use log::debug;
+use oauth2::{basic::BasicClient, AuthUrl, ClientId, ClientSecret, RedirectUrl, Scope, TokenUrl};
 use serde::{Deserialize, Serialize};
 use std::env;
-use log::debug;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub enum OAuthProvider {
@@ -47,17 +47,17 @@ impl OAuthProvider {
     pub fn get_scopes(&self) -> Vec<Scope> {
         match self {
             OAuthProvider::GitHub => vec![
-                Scope::new("read:user".to_string()),     // Read user profile data
-                Scope::new("user:email".to_string()),    // Access user email
-                Scope::new("repo".to_string()),          // Full access to public and private repositories
+                Scope::new("read:user".to_string()),  // Read user profile data
+                Scope::new("user:email".to_string()), // Access user email
+                Scope::new("repo".to_string()), // Full access to public and private repositories
             ],
             OAuthProvider::GitLab => vec![
                 Scope::new("read_user".to_string()),
                 Scope::new("read_repository".to_string()),
             ],
             OAuthProvider::Bitbucket => vec![
-                Scope::new("account".to_string()),       // Read user account information
-                Scope::new("repository".to_string()),    // Read and write access to repositories
+                Scope::new("account".to_string()), // Read user account information
+                Scope::new("repository".to_string()), // Read and write access to repositories
             ],
         }
     }
@@ -72,18 +72,15 @@ pub struct OAuthUser {
 }
 
 pub fn github_oauth_client() -> BasicClient {
-    create_oauth_client(&OAuthProvider::GitHub)
-        .expect("Failed to create GitHub OAuth client")
+    create_oauth_client(&OAuthProvider::GitHub).expect("Failed to create GitHub OAuth client")
 }
 
 pub fn gitlab_oauth_client() -> BasicClient {
-    create_oauth_client(&OAuthProvider::GitLab)
-        .expect("Failed to create GitLab OAuth client")
+    create_oauth_client(&OAuthProvider::GitLab).expect("Failed to create GitLab OAuth client")
 }
 
 pub fn bitbucket_oauth_client() -> BasicClient {
-    create_oauth_client(&OAuthProvider::Bitbucket)
-        .expect("Failed to create Bitbucket OAuth client")
+    create_oauth_client(&OAuthProvider::Bitbucket).expect("Failed to create Bitbucket OAuth client")
 }
 
 fn create_oauth_client(

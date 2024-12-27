@@ -1,7 +1,7 @@
+use actix_session::{SessionGetError, SessionInsertError};
 use actix_web::{error::ResponseError, http::StatusCode, HttpResponse};
 use derive_more::Display;
 use serde_json::json;
-use actix_session::{SessionGetError, SessionInsertError};
 
 #[derive(Debug, Display)]
 pub enum AppError {

@@ -14,7 +14,7 @@ pub fn App() -> impl IntoView {
         <Stylesheet id="leptos" href="/pkg/tailwind.css"/>
         <Link rel="shortcut icon" type_="image/ico" href="/favicon.ico"/>
         <Meta name="description" content="PaaS - Platform as a Service"/>
-        
+
         <ConfigProvider>
             <Router>
                 <main>
