@@ -1,7 +1,7 @@
 use actix_session::{storage::CookieSessionStore, SessionMiddleware};
 use actix_web::{cookie::Key, test, web::Data, App, Error};
 use env_logger;
-use paas_api::{models, routes::configure};
+use paas_api::{config, models, routes::configure};
 use serde_json::json;
 use sqlx::SqlitePool;
 use std::env;
@@ -17,6 +17,7 @@ fn setup_test_env() {
     env::set_var("HOST", "127.0.0.1");
     env::set_var("PORT", "3000");
     env::set_var("BASE_URL", "http://127.0.0.1:3000");
+    env::set_var("FRONTEND_URL", "http://127.0.0.1:8080");
     env::set_var(
         "GITHUB_AUTH_URL",
         "https://github.com/login/oauth/authorize",
@@ -138,11 +139,10 @@ async fn test_github_auth_flow() {
         .uri("/api/auth/github/callback?code=test_code&state=test_state")
         .to_request();
     let resp = test::call_service(&app, req).await;
-    assert!(resp.status().is_success());
+    assert!(resp.status().is_redirection());
 
-    let body: serde_json::Value = test::read_body_json(resp).await;
-    assert_eq!(body["user"]["username"], "test_user");
-    assert_eq!(body["user"]["email"], "test@example.com");
+    let location = resp.headers().get("Location").unwrap().to_str().unwrap();
+    assert!(location.contains(&format!("{}/dashboard", config::get_frontend_url())));
 
     // Verify user was created in database
     let user = sqlx::query_as::<_, models::User>("SELECT * FROM users WHERE username = ?")
@@ -221,11 +221,10 @@ async fn test_gitlab_auth_flow() {
         .uri("/api/auth/gitlab/callback?code=test_code&state=test_state")
         .to_request();
     let resp = test::call_service(&app, req).await;
-    assert!(resp.status().is_success());
+    assert!(resp.status().is_redirection());
 
-    let body: serde_json::Value = test::read_body_json(resp).await;
-    assert_eq!(body["user"]["username"], "test_user");
-    assert_eq!(body["user"]["email"], "test@example.com");
+    let location = resp.headers().get("Location").unwrap().to_str().unwrap();
+    assert!(location.contains(&format!("{}/dashboard", config::get_frontend_url())));
 
     // Verify user was created in database
     let user = sqlx::query_as::<_, models::User>("SELECT * FROM users WHERE username = ?")
@@ -254,10 +253,7 @@ async fn test_bitbucket_auth_flow() {
         "BITBUCKET_TOKEN_URL",
         format!("{}/site/oauth2/access_token", mock_server.uri()),
     );
-    env::set_var(
-        "BITBUCKET_API_URL",
-        format!("{}/2.0/user", mock_server.uri()),
-    );
+    env::set_var("BITBUCKET_API_URL", format!("{}/2.0/user", mock_server.uri()));
 
     // Mock Bitbucket token endpoint
     Mock::given(method("POST"))
@@ -274,10 +270,14 @@ async fn test_bitbucket_auth_flow() {
     Mock::given(method("GET"))
         .and(path("/2.0/user"))
         .respond_with(ResponseTemplate::new(200).set_body_json(json!({
-            "uuid": "12345",
+            "uuid": "{12345}",
             "username": "test_user",
             "email": "test@example.com",
-            "avatar_url": "https://example.com/avatar.jpg"
+            "links": {
+                "avatar": {
+                    "href": "https://example.com/avatar.jpg"
+                }
+            }
         })))
         .mount(&mock_server)
         .await;
@@ -304,11 +304,10 @@ async fn test_bitbucket_auth_flow() {
         .uri("/api/auth/bitbucket/callback?code=test_code&state=test_state")
         .to_request();
     let resp = test::call_service(&app, req).await;
-    assert!(resp.status().is_success());
+    assert!(resp.status().is_redirection());
 
-    let body: serde_json::Value = test::read_body_json(resp).await;
-    assert_eq!(body["user"]["username"], "test_user");
-    assert_eq!(body["user"]["email"], "test@example.com");
+    let location = resp.headers().get("Location").unwrap().to_str().unwrap();
+    assert!(location.contains(&format!("{}/dashboard", config::get_frontend_url())));
 
     // Verify user was created in database
     let user = sqlx::query_as::<_, models::User>("SELECT * FROM users WHERE username = ?")
@@ -350,10 +349,11 @@ async fn test_github_auth_denied() {
         .uri("/api/auth/github/callback?error=access_denied&error_description=The+user+has+denied+access")
         .to_request();
     let resp = test::call_service(&app, req).await;
-    assert!(resp.status().is_client_error());
+    assert!(resp.status().is_redirection());
 
-    let body: serde_json::Value = test::read_body_json(resp).await;
-    assert!(body["error"].as_str().unwrap().contains("denied"));
+    let location = resp.headers().get("Location").unwrap().to_str().unwrap();
+    assert!(location.contains(&format!("{}/login?error=", config::get_frontend_url())));
+    assert!(location.contains("denied"));
 }
 
 #[actix_web::test]
@@ -369,10 +369,11 @@ async fn test_gitlab_auth_denied() {
         .uri("/api/auth/gitlab/callback?error=access_denied&error_description=The+user+has+denied+access")
         .to_request();
     let resp = test::call_service(&app, req).await;
-    assert!(resp.status().is_client_error());
+    assert!(resp.status().is_redirection());
 
-    let body: serde_json::Value = test::read_body_json(resp).await;
-    assert!(body["error"].as_str().unwrap().contains("denied"));
+    let location = resp.headers().get("Location").unwrap().to_str().unwrap();
+    assert!(location.contains(&format!("{}/login?error=", config::get_frontend_url())));
+    assert!(location.contains("denied"));
 }
 
 #[actix_web::test]
@@ -388,8 +389,9 @@ async fn test_bitbucket_auth_denied() {
         .uri("/api/auth/bitbucket/callback?error=access_denied&error_description=The+user+has+denied+access")
         .to_request();
     let resp = test::call_service(&app, req).await;
-    assert!(resp.status().is_client_error());
+    assert!(resp.status().is_redirection());
 
-    let body: serde_json::Value = test::read_body_json(resp).await;
-    assert!(body["error"].as_str().unwrap().contains("denied"));
+    let location = resp.headers().get("Location").unwrap().to_str().unwrap();
+    assert!(location.contains(&format!("{}/login?error=", config::get_frontend_url())));
+    assert!(location.contains("denied"));
 }
