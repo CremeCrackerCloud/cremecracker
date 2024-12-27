@@ -1,12 +1,20 @@
 use crate::api::auth::AuthApi;
 use leptos::*;
+use leptos_router::*;
 
 #[component]
 pub fn OAuthCallback() -> impl IntoView {
     let handle_callback = create_action(|_: &()| async move {
-        AuthApi::handle_oauth_callback()
-            .await
-            .map_err(|e| e.as_string().unwrap_or_else(|| "Unknown error".to_string()))
+        match AuthApi::handle_oauth_callback().await {
+            Ok(_) => {
+                // Redirect to dashboard
+                if let Some(window) = web_sys::window() {
+                    let _ = window.location().set_href("/dashboard");
+                }
+                Ok(())
+            },
+            Err(err) => Err(err.as_string().unwrap_or_else(|| "Unknown error".to_string()))
+        }
     });
 
     // Automatically trigger the callback handling

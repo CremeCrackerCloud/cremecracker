@@ -4,7 +4,7 @@ use leptos_router::*;
 
 use crate::components::nav::NavBar;
 use crate::config::ConfigProvider;
-use crate::pages::{Home, Login, OAuthCallback};
+use crate::pages::{Home, Login, OAuthCallback, Dashboard};
 
 #[component]
 pub fn App() -> impl IntoView {
@@ -22,6 +22,7 @@ pub fn App() -> impl IntoView {
                     <Routes>
                         <Route path="" view=Home/>
                         <Route path="/login" view=Login/>
+                        <Route path="/dashboard" view=Dashboard/>
                         <Route path="/auth/github/callback" view=OAuthCallback/>
                         <Route path="/auth/gitlab/callback" view=OAuthCallback/>
                         <Route path="/auth/bitbucket/callback" view=OAuthCallback/>

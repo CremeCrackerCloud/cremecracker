@@ -49,14 +49,11 @@ pub async fn run() -> std::io::Result<()> {
             )
             .wrap(
                 Cors::default()
-                    .allowed_origin_fn(|origin, _req_head| {
-                        origin.as_bytes().starts_with(b"http://127.0.0.1")
-                    })
+                    .allowed_origin("http://127.0.0.1:8080")
+                    .allowed_origin("http://localhost:8080")
                     .allowed_methods(vec!["GET", "POST"])
-                    .allowed_headers(&[header::AUTHORIZATION, header::ACCEPT])
-                    .allowed_header(header::CONTENT_TYPE)
-                    .expose_headers(&[header::CONTENT_DISPOSITION])
-                    .block_on_origin_mismatch(false)
+                    .allowed_headers(vec![header::AUTHORIZATION, header::ACCEPT, header::CONTENT_TYPE])
+                    .supports_credentials()
                     .max_age(3600),
             )
             .wrap(Logger::default())

@@ -37,9 +37,10 @@ impl AuthApi {
         let config = Self::get_config();
         let window = web_sys::window().unwrap();
 
-        let opts = RequestInit::new();
+        let mut opts = RequestInit::new();
         opts.set_method("GET");
         opts.set_mode(RequestMode::Cors);
+        opts.set_credentials(web_sys::RequestCredentials::Include);
 
         let request = Request::new_with_str_and_init(
             &format!("{}/api/auth/{}", config.api_host, provider),
@@ -50,13 +51,15 @@ impl AuthApi {
         let resp_value = JsFuture::from(window.fetch_with_request(&request)).await?;
         let resp: Response = resp_value.dyn_into()?;
 
-        if !resp.ok() {
-            return Err(JsValue::from_str("Failed to get OAuth URL"));
+        if resp.ok() {
+            let json = JsFuture::from(resp.json()?).await?;
+            let response: AuthResponse = serde_wasm_bindgen::from_value(json)?;
+            Ok(response.auth_url)
+        } else {
+            let json = JsFuture::from(resp.json()?).await?;
+            let error: AuthError = serde_wasm_bindgen::from_value(json)?;
+            Err(JsValue::from_str(&error.as_string()))
         }
-
-        let json = JsFuture::from(resp.json()?).await?;
-        let auth_response: AuthResponse = serde_wasm_bindgen::from_value(json)?;
-        Ok(auth_response.auth_url)
     }
 
     pub async fn github_auth() -> Result<(), JsValue> {
@@ -114,9 +117,10 @@ impl AuthApi {
             .ok_or_else(|| JsValue::from_str("No state parameter found"))?;
 
         // Make request to backend
-        let opts = RequestInit::new();
+        let mut opts = RequestInit::new();
         opts.set_method("GET");
         opts.set_mode(RequestMode::Cors);
+        opts.set_credentials(web_sys::RequestCredentials::Include);
 
         // Get the current path to determine which provider to use
         let path = location.pathname()?;
@@ -153,8 +157,35 @@ impl AuthApi {
             return Ok(());
         }
 
-        // On success, redirect to home page
-        location.set_href("/")?;
+        // On success, redirect to dashboard
+        location.set_href("/dashboard")?;
         Ok(())
+    }
+
+    pub async fn logout() -> Result<(), JsValue> {
+        let config = Self::get_config();
+        let window = web_sys::window().unwrap();
+
+        let mut opts = RequestInit::new();
+        opts.set_method("POST");
+        opts.set_mode(RequestMode::Cors);
+        opts.set_credentials(web_sys::RequestCredentials::Include);
+
+        let request = Request::new_with_str_and_init(
+            &format!("{}/api/auth/logout", config.api_host),
+            &opts,
+        )?;
+        request.headers().set("Accept", "application/json")?;
+
+        let resp_value = JsFuture::from(window.fetch_with_request(&request)).await?;
+        let resp: Response = resp_value.dyn_into()?;
+
+        if resp.ok() {
+            Ok(())
+        } else {
+            let json = JsFuture::from(resp.json()?).await?;
+            let error: serde_json::Value = serde_wasm_bindgen::from_value(json)?;
+            Err(JsValue::from_str(&error["error"].as_str().unwrap_or("Unknown error")))
+        }
     }
 }

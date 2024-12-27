@@ -47,7 +47,9 @@ pub async fn github_callback(
             .error_description
             .as_deref()
             .unwrap_or("OAuth consent was denied");
-        return Ok(HttpResponse::Unauthorized().json(json!({ "error": error_msg })));
+        return Ok(HttpResponse::Found()
+            .append_header(("Location", format!("{}/login?error={}", config::get_frontend_url(), error_msg)))
+            .finish());
     }
 
     let code = params
@@ -71,10 +73,9 @@ pub async fn github_callback(
         }
         Err(e) => {
             debug!("GitHub token exchange error: {:?}", e);
-            return Err(AppError::AuthError(format!(
-                "Failed to exchange code: {}",
-                e
-            )));
+            return Ok(HttpResponse::Found()
+                .append_header(("Location", format!("{}/login?error={}", config::get_frontend_url(), e)))
+                .finish());
         }
     };
 
@@ -134,13 +135,9 @@ pub async fn github_callback(
     )?;
 
     debug!("GitHub auth flow completed successfully");
-    Ok(HttpResponse::Ok().json(json!({
-        "user": {
-            "id": user.id,
-            "username": user.username,
-            "email": user.email
-        }
-    })))
+    Ok(HttpResponse::Found()
+        .append_header(("Location", format!("{}/dashboard", config::get_frontend_url())))
+        .finish())
 }
 
 pub async fn gitlab_auth() -> Result<HttpResponse, AppError> {
@@ -169,7 +166,9 @@ pub async fn gitlab_callback(
             .error_description
             .as_deref()
             .unwrap_or("OAuth consent was denied");
-        return Ok(HttpResponse::Unauthorized().json(json!({ "error": error_msg })));
+        return Ok(HttpResponse::Found()
+            .append_header(("Location", format!("{}/login?error={}", config::get_frontend_url(), error_msg)))
+            .finish());
     }
 
     let code = params
@@ -193,10 +192,9 @@ pub async fn gitlab_callback(
         }
         Err(e) => {
             debug!("GitLab token exchange error: {:?}", e);
-            return Err(AppError::AuthError(format!(
-                "Failed to exchange code: {}",
-                e
-            )));
+            return Ok(HttpResponse::Found()
+                .append_header(("Location", format!("{}/login?error={}", config::get_frontend_url(), e)))
+                .finish());
         }
     };
 
@@ -255,13 +253,9 @@ pub async fn gitlab_callback(
     )?;
 
     debug!("GitLab auth flow completed successfully");
-    Ok(HttpResponse::Ok().json(json!({
-        "user": {
-            "id": user.id,
-            "username": user.username,
-            "email": user.email
-        }
-    })))
+    Ok(HttpResponse::Found()
+        .append_header(("Location", format!("{}/dashboard", config::get_frontend_url())))
+        .finish())
 }
 
 pub async fn bitbucket_auth() -> Result<HttpResponse, AppError> {
@@ -290,7 +284,9 @@ pub async fn bitbucket_callback(
             .error_description
             .as_deref()
             .unwrap_or("OAuth consent was denied");
-        return Ok(HttpResponse::Unauthorized().json(json!({ "error": error_msg })));
+        return Ok(HttpResponse::Found()
+            .append_header(("Location", format!("{}/login?error={}", config::get_frontend_url(), error_msg)))
+            .finish());
     }
 
     let code = params
@@ -314,10 +310,9 @@ pub async fn bitbucket_callback(
         }
         Err(e) => {
             debug!("Bitbucket token exchange error: {:?}", e);
-            return Err(AppError::AuthError(format!(
-                "Failed to exchange code: {}",
-                e
-            )));
+            return Ok(HttpResponse::Found()
+                .append_header(("Location", format!("{}/login?error={}", config::get_frontend_url(), e)))
+                .finish());
         }
     };
 
@@ -376,16 +371,26 @@ pub async fn bitbucket_callback(
     )?;
 
     debug!("Bitbucket auth flow completed successfully");
-    Ok(HttpResponse::Ok().json(json!({
-        "user": {
-            "id": user.id,
-            "username": user.username,
-            "email": user.email
-        }
-    })))
+    Ok(HttpResponse::Found()
+        .append_header(("Location", format!("{}/dashboard", config::get_frontend_url())))
+        .finish())
 }
 
 pub async fn logout(session: Session) -> Result<HttpResponse, AppError> {
     auth::clear_session(&session)?;
     Ok(HttpResponse::Ok().finish())
+}
+
+pub async fn get_current_user(session: Session) -> Result<HttpResponse, AppError> {
+    if let Some(user) = auth::get_session_user(&session).await? {
+        Ok(HttpResponse::Ok().json(json!({
+            "id": user.id,
+            "username": user.username,
+            "email": user.email
+        })))
+    } else {
+        Ok(HttpResponse::Unauthorized().json(json!({
+            "error": "Not authenticated"
+        })))
+    }
 }

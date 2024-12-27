@@ -71,6 +71,10 @@ pub struct OAuthUser {
     pub avatar_url: Option<String>,
 }
 
+pub fn get_frontend_url() -> String {
+    env::var("FRONTEND_URL").unwrap_or_else(|_| "http://127.0.0.1:8080".to_string())
+}
+
 pub fn github_oauth_client() -> BasicClient {
     create_oauth_client(&OAuthProvider::GitHub).expect("Failed to create GitHub OAuth client")
 }
