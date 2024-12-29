@@ -1,17 +1,59 @@
-# PaaS UI
+# PAAS UI
 
-The frontend application for the PaaS (Platform as a Service) project, built with Rust and Leptos.
+The PAAS (Platform as a Service) UI is a modern web interface built with Leptos, a Rust-based frontend framework. It provides a seamless user experience for managing applications and services.
 
 ## Tech Stack
 
-- **[Leptos](https://leptos.dev/)** (v0.5) - A full-stack Rust web framework
-- **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS framework
-- **WebAssembly** - For running Rust code in the browser
-- **[Trunk](https://trunkrs.dev/)** - WASM web application bundler for Rust
-- **Node.js** - Required for Tailwind CSS processing
+- **Framework**: Leptos (Rust-based frontend framework)
+- **Styling**: TailwindCSS
+- **Build Tool**: Trunk (WASM bundler)
+- **Key Dependencies**:
+  - `leptos_router`: For client-side routing
+  - `web-sys`: Web APIs bindings
+  - `wasm-bindgen`: WebAssembly bindings
+  - `gloo`: Browser APIs utilities
+
+## Project Structure
+
+```
+paas-ui/
+├── src/              # Source code
+│   ├── api/           # API communication
+│   │   ├── auth.rs    # Authentication API
+│   │   └── mod.rs
+│   ├── components/    # Reusable UI components
+│   │   ├── nav.rs     # Navigation bar
+│   │   ├── loading.rs # Loading spinner
+│   │   └── mod.rs
+│   ├── pages/         # Application pages
+│   │   ├── home.rs    # Home page
+│   │   ├── login.rs   # Login page
+│   │   └── mod.rs
+│   ├── app.rs         # Main application component
+│   ├── lib.rs         # Library root
+│   └── main.rs        # Application entry point
+├── styles/           # CSS and Tailwind styles
+│   ├── input.css      # Tailwind CSS entry point
+│   └── output.css     # Generated CSS (don't edit)
+├── public/           # Static assets
+│   └── favicon.ico
+├── dist/             # Build output
+├── index.html        # HTML entry point
+├── Cargo.toml         # Rust dependencies
+├── package.json       # Node.js dependencies
+├── tailwind.config.js # Tailwind configuration
+├── postcss.config.js  # PostCSS configuration
+├── Trunk.toml        # Trunk configuration
+└── README.md          # This file
+```
 
 ## Features
 
+- Single Page Application (SPA) architecture
+- Client-side routing
+- Modern, responsive UI
+- TailwindCSS for styling
+- WebAssembly-powered performance
 - 🔐 OAuth authentication with multiple providers:
   - GitHub
   - GitLab
@@ -31,38 +73,52 @@ Before you begin, ensure you have installed:
 - Trunk (`cargo install trunk`)
 - wasm32 target (`rustup target add wasm32-unknown-unknown`)
 
-## Project Structure
+## Setup
 
-```
-paas-ui/
-├── src/
-│   ├── api/           # API communication
-│   │   ├── auth.rs    # Authentication API
-│   │   └── mod.rs
-│   ├── components/    # Reusable UI components
-│   │   ├── nav.rs     # Navigation bar
-│   │   ├── loading.rs # Loading spinner
-│   │   └── mod.rs
-│   ├── pages/         # Application pages
-│   │   ├── home.rs    # Home page
-│   │   ├── login.rs   # Login page
-│   │   └── mod.rs
-│   ├── app.rs         # Main application component
-│   ├── lib.rs         # Library root
-│   └── main.rs        # Application entry point
-├── styles/            # CSS styles
-│   ├── input.css      # Tailwind CSS entry point
-│   └── output.css     # Generated CSS (don't edit)
-├── public/            # Static assets
-│   └── favicon.ico
-├── Cargo.toml         # Rust dependencies
-├── package.json       # Node.js dependencies
-├── tailwind.config.js # Tailwind configuration
-├── postcss.config.js  # PostCSS configuration
-├── Trunk.toml         # Trunk configuration
-├── index.html         # HTML entry point
-└── README.md          # This file
-```
+1. Install Rust and Cargo
+2. Install Trunk:
+   ```bash
+   cargo install trunk
+   ```
+3. Install wasm32 target:
+   ```bash
+   rustup target add wasm32-unknown-unknown
+   ```
+4. Install Node.js dependencies:
+   ```bash
+   npm install
+   ```
+
+## Development
+
+- **Start development server**:
+  ```bash
+  trunk serve
+  ```
+- **Build for production**:
+  ```bash
+  trunk build --release
+  ```
+
+## Project Configuration
+
+### Trunk.toml
+Configures the WASM build process and development server settings.
+
+### Tailwind
+- `tailwind.config.js`: Tailwind configuration
+- `postcss.config.js`: PostCSS plugins configuration
+
+## Build Features
+
+The project supports different build features:
+- `csr`: Client-side rendering (default)
+- `hydrate`: Hydration capabilities
+- `ssr`: Server-side rendering support
+
+## Browser Compatibility
+
+The application is compiled to WebAssembly and supports all modern browsers that implement the WebAssembly specification.
 
 ## Configuration Files
 

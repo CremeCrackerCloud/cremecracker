@@ -1,6 +1,6 @@
 # PAAS API
 
-The backend service component of the PAAS (Platform as a Service) project, built with Rust using Actix-web framework.
+The PAAS (Platform as a Service) API is a Rust-based backend service that provides authentication and application management functionality.
 
 ## Features
 
@@ -11,6 +11,17 @@ The backend service component of the PAAS (Platform as a Service) project, built
 - Database migrations
 - Comprehensive test suite
 - Environment-based configuration
+
+## Tech Stack
+
+- **Framework**: Actix-web 
+- **Database**: SQLite with SQLx
+- **Authentication**: OAuth2
+- **Other Key Dependencies**:
+  - `serde`: For serialization/deserialization
+  - `jsonwebtoken`: For JWT handling
+  - `chrono`: For datetime operations
+  - `actix-session`: For session management
 
 ## Development Setup
 
@@ -125,17 +136,18 @@ The application automatically runs pending migrations on startup. This behavior 
 ```
 paas-api/
 ├── src/
-│   ├── main.rs           # Application entry point
-│   ├── config.rs         # Configuration management
-│   ├── routes.rs         # API route definitions
-│   ├── handlers/         # Request handlers
-│   ├── models/           # Data models
-│   ├── db/              # Database operations
-│   ├── auth.rs          # Authentication logic
-│   └── error.rs         # Error handling
-├── migrations/          # Database migration files
-├── tests/              # Integration tests
-└── Cargo.toml          # Project dependencies
+│   ├── auth.rs       # Authentication logic
+│   ├── config.rs     # Configuration management
+│   ├── db.rs         # Database connections and utilities
+│   ├── error.rs      # Error handling
+│   ├── handlers.rs   # Request handlers
+│   ├── lib.rs        # Library exports
+│   ├── main.rs       # Application entry point
+│   ├── models.rs     # Data models
+│   ├── routes.rs     # API route definitions
+│   └── tests.rs      # Integration tests
+├── migrations/       # Database migrations
+└── tests/           # Test utilities and fixtures
 ```
 
 ## API Documentation
